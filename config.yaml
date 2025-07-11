@@ -1,0 +1,9 @@
+# input files
+task: 5_fold
+target: synergy_hsa # "synergy_bliss", "synergy_hsa", "synergy_loewe", "synergy_zip"
+drug_feat: dataset_1/database/drug/drugmor_3_1024_int.csv
+cell_feat: dataset_1/database/cell/cell_expression_filtered_with_landmark.csv
+
+batch_size: 128
+
+
