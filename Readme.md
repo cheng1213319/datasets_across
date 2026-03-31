@@ -1,11 +1,10 @@
 # Unified Heterogeneity-Aware Benchmark of Drug Synergy Prediction
 
 ## Requirements
-- python=3.8
-- pytorch=1.13.1
-- sklearn=1.3.0
-- pandas=2.0.3
-- xgboost=2.0.3
+
+Python 3.8 is required. Install dependencies with:
+```bash
+pip install -r requirements.txt
 
 ## Start
 Run the dataexam_5fold.py to train the model.
