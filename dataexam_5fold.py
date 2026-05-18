@@ -1,3 +1,29 @@
+"""
+Usage:
+    This script performs 5-fold cross-validation for a given model, dataset, and synergy metric.
+
+    1. Configure the experiment by editing `config.yaml`:
+        - `target`: synergy metric to predict (e.g., synergy_loewe, synergy_bliss, synergy_hsa, synergy_zip)
+        - `drug_feat`: path to drug feature file (CSV)
+        - `cell_feat`: path to cell line feature file (CSV)
+        - `batch_size`: training batch size
+
+    2. Run the script:
+        python dataexam_5fold.py
+
+    3. The script will:
+        - Loop over all datasets listed in `study_list`
+        - For each dataset, split data into 5 folds (if `split_flag = 1`)
+        - Train and evaluate three models: MLP, XGBoost, Random Forest (modify `model_type` loop as needed)
+        - Results are saved in `output/` directory
+
+    Optional:
+        - To change the synergy metric, edit `config.yaml` (`target` field)
+        - To run only specific datasets, modify `study_list`
+        - To run a single model, adjust the `for model_type in [...]` loop
+        - To enable GPU, ensure `device` detection works; otherwise CPU is used.
+"""
+
 import json
 import random
 import numpy as np
@@ -24,7 +50,7 @@ def set_seed(seed):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
-set_seed(42)
+set_seed(42) # Fix random seeds for reproducibility across runs
 
 def run_fold(repeat, fold, input_path, config, study_name, model_type="MLP", test_mode=True):
     target_name = config['target']
@@ -111,13 +137,15 @@ def run_fold(repeat, fold, input_path, config, study_name, model_type="MLP", tes
 
 
 if __name__ == '__main__':
-
+    # Load experiment configuration (target metric, feature paths, etc.)
     with open('config.yaml', 'r', encoding="utf-8") as yaml_file:
         config = yaml.safe_load(yaml_file)
-
+    
+    # Set to 1 to perform data splitting; set to 0 if data already split
     split_flag = 0  # split data
-    # search the best group of hyperparameters
-
+    
+    # List of all datasets to process.
+    # To run only a subset, comment out or remove unwanted entries.
     study_list = [
         'FORCINA', 'MATHEWS', 'NCATS_ES(FAKI/AURKI)', 'NCATS_HL', 'NCATS_DIPG', 'PHELAN', 'BOBROWSKI', 'MOTT',
         'NCATS_SARS-COV-2DPI', 'FRIEDMAN', 'CLOUD', 'FRIEDMAN2', 'ASTRAZENECA', 'FLOBAK','NCATS_ES(NAMPT+PARP)',
@@ -146,6 +174,8 @@ if __name__ == '__main__':
         else:
             device = torch.device('cpu')
 
+        # Model types: MLP (neural network), XGB (XGBoost), RF (Random Forest)
+        # To add more models, extend this list and ensure they are implemented in ModelFactory.
         for model_type in ['MLP', 'XGB', 'RF']:
             output_path = os.path.join('output', model_type, f"{study.replace('/', '_')}_{config['target']}")
             os.makedirs(output_path, exist_ok=True)
